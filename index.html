@@ -1,116 +1,39 @@
 <!doctype html>
-<html lang="ja">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#14213d">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="予想ゲーム">
-<link rel="manifest" href="./manifest.webmanifest">
-<link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
-<title>3チーム対抗 予想ゲーム</title>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><link rel="manifest" href="./manifest.webmanifest"><title>3チーム対抗 予想ゲーム</title>
 <style>
-:root{--navy:#14213d;--blue:#2563eb;--green:#15803d;--gold:#d97706;--bg:#f3f6fb;--ink:#172033;--muted:#64748b;--line:#dbe2ec}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP","Yu Gothic",Meiryo,sans-serif}
-header{background:linear-gradient(135deg,#14213d,#244b78);color:white;padding:22px 18px 26px;text-align:center}
-header h1{font-size:clamp(22px,5vw,32px);margin:0 0 6px}header p{margin:0;color:#dbeafe;font-size:13px}
-main{max-width:850px;margin:18px auto;padding:0 14px 40px}
-.panel{background:white;border:1px solid var(--line);border-radius:18px;padding:17px;margin:14px 0;box-shadow:0 4px 14px #1e293b0b}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.row>*{flex:1}
-label{display:block;font-weight:700;font-size:13px;margin:10px 0 6px}
-input{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;font-size:16px;background:#fff;color:var(--ink)}
-button{border:0;border-radius:12px;padding:13px 16px;font-size:15px;font-weight:800;cursor:pointer}
-.primary{background:var(--blue);color:white}.dark{background:var(--navy);color:white}.soft{background:#e8eef8;color:var(--navy)}.danger{background:#fee2e2;color:#991b1b}
-button:disabled{opacity:.45;cursor:not-allowed}
-.teamgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
-.team{border:1px solid var(--line);border-radius:13px;padding:10px;background:#fbfdff}
-.team h3{margin:0 0 8px;font-size:14px;text-align:center}.team:nth-child(1) h3{color:#2563eb}.team:nth-child(2) h3{color:#15803d}.team:nth-child(3) h3{color:#d97706}
-.team input{text-align:center;padding:10px}
-.kicker{color:var(--muted);font-size:12px;font-weight:800;letter-spacing:.06em}
-h2{font-size:19px;margin:5px 0 12px}
-.progress{height:9px;background:#e5eaf2;border-radius:99px;overflow:hidden;margin:12px 0}.bar{height:100%;background:var(--blue);width:20%;transition:width .25s}
-.big{font-size:clamp(30px,8vw,52px);font-weight:900;text-align:center;color:var(--navy);font-variant-numeric:tabular-nums}
-.center{text-align:center}.muted{color:var(--muted)}.hidden{display:none!important}
-.resultrow{display:grid;grid-template-columns:1fr auto auto;gap:10px;padding:11px 4px;border-bottom:1px solid var(--line);align-items:center}
-.rank{font-weight:900;color:var(--blue)}.err{font-weight:900;font-variant-numeric:tabular-nums}
-table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:10px 6px;border-bottom:1px solid var(--line);text-align:center}th{color:var(--muted);font-size:12px}
-.actions{display:flex;gap:8px;flex-wrap:wrap}.actions button{flex:1;min-width:120px}
-.note{font-size:12px;color:var(--muted);line-height:1.6}
-@media(max-width:520px){.teamgrid{gap:6px}.team{padding:7px}.team h3{font-size:12px}.team input{font-size:15px;padding:9px}.panel{padding:14px}.resultrow{grid-template-columns:1fr auto auto}}
-</style>
-</head>
-<body>
-<header><h1>🎯 3チーム対抗 予想ゲーム</h1><p>数字を予想して、正解との差で勝負！</p></header>
-<main>
-<section class="panel">
- <div class="row"><div><div class="kicker">GAME SETUP</div><h2>チーム名</h2></div><div class="muted" style="text-align:right;font-size:12px">全5問</div></div>
- <div class="teamgrid">
-  <div class="team"><h3>チームA</h3><input id="team0" value="Aチーム" maxlength="12"></div>
-  <div class="team"><h3>チームB</h3><input id="team1" value="Bチーム" maxlength="12"></div>
-  <div class="team"><h3>チームC</h3><input id="team2" value="Cチーム" maxlength="12"></div>
- </div>
-</section>
-<section class="panel" id="entry">
- <div class="kicker" id="qcount">QUESTION 1 / 5</div><div class="progress"><div class="bar" id="bar"></div></div>
- <h2>問題と予想を入力</h2>
- <label for="question">問題名・内容</label><input id="question" placeholder="例：参加者のうち男性は何％？">
- <div class="row">
-  <div><label for="unit">単位</label><input id="unit" value="％" placeholder="例：人、％、個"></div>
-  <div><label for="answer">正解の数値</label><input id="answer" type="number" step="any" inputmode="decimal" placeholder="正解は司会者だけが入力"></div>
- </div>
- <label>各チームの予想</label>
- <div class="teamgrid">
-  <div class="team"><h3 id="name0">Aチーム</h3><input id="guess0" type="number" step="any" inputmode="decimal" placeholder="予想"></div>
-  <div class="team"><h3 id="name1">Bチーム</h3><input id="guess1" type="number" step="any" inputmode="decimal" placeholder="予想"></div>
-  <div class="team"><h3 id="name2">Cチーム</h3><input id="guess2" type="number" step="any" inputmode="decimal" placeholder="予想"></div>
- </div>
- <p class="note">正解と3チームの予想を入力してから「答え合わせ」に進んでください。誤差は正解との差の絶対値で計算します。</p>
- <div class="actions"><button class="primary" id="revealBtn">答え合わせへ</button><button class="soft" id="clearBtn">この問題をクリア</button></div>
-</section>
-<section class="panel hidden center" id="countdown">
- <div class="kicker">ANSWER TIME</div><h2 id="countTitle">第1問の答え合わせ</h2><div class="big" id="countNum">5</div><p class="muted">まもなく正解発表！</p>
-</section>
-<section class="panel hidden" id="result">
- <div class="kicker">RESULT</div><h2 id="resultTitle">第1問 結果発表</h2>
- <div class="center muted">正解</div><div class="big" id="correctValue">—</div>
- <div id="resultRows"></div>
- <div class="actions" style="margin-top:16px"><button class="primary" id="nextBtn">次の問題へ</button></div>
-</section>
-<section class="panel hidden" id="final">
- <div class="kicker">FINAL RANKING</div><h2>🏆 総合順位</h2><div id="finalRows"></div>
- <h2 style="margin-top:22px">問題別の結果</h2><div style="overflow-x:auto" id="history"></div>
- <div class="actions" style="margin-top:16px"><button class="primary" id="exportBtn">結果を保存（CSV）</button><button class="soft" id="againBtn">最初からやり直す</button></div>
-</section>
-<section class="panel">
- <div class="kicker">DATA</div><div class="row"><div><b>このiPad内に自動保存</b><div class="note">同じブラウザで開けば、途中から続けられます。</div></div><button class="soft" id="saveBtn" style="flex:0 0 auto">保存</button></div>
-</section>
-</main>
+:root{--navy:#14213d;--blue:#2563eb;--bg:#f3f6fb;--ink:#172033;--muted:#64748b;--line:#dbe2ec}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP","Yu Gothic",Meiryo,sans-serif}header{background:linear-gradient(135deg,#14213d,#244b78);color:white;padding:22px 18px;text-align:center}header h1{font-size:clamp(22px,5vw,32px);margin:0 0 6px}header p{margin:0;color:#dbeafe;font-size:13px}main{max-width:850px;margin:18px auto;padding:0 14px 40px}.panel{background:white;border:1px solid var(--line);border-radius:18px;padding:17px;margin:14px 0;box-shadow:0 4px 14px #1e293b0b}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.row>*{flex:1}label{display:block;font-weight:700;font-size:13px;margin:10px 0 6px}input{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;font-size:16px;background:white;color:var(--ink)}button{border:0;border-radius:12px;padding:13px 16px;font-size:15px;font-weight:800;cursor:pointer}.primary{background:var(--blue);color:white}.soft{background:#e8eef8;color:var(--navy)}.teamgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.team{border:1px solid var(--line);border-radius:13px;padding:10px;background:#fbfdff}.team h3{margin:0 0 8px;font-size:14px;text-align:center}.team:nth-child(1) h3{color:#2563eb}.team:nth-child(2) h3{color:#15803d}.team:nth-child(3) h3{color:#d97706}.team input{text-align:center;padding:10px}.kicker{color:var(--muted);font-size:12px;font-weight:800;letter-spacing:.06em}h2{font-size:19px;margin:5px 0 12px}.progress{height:9px;background:#e5eaf2;border-radius:99px;overflow:hidden;margin:12px 0}.bar{height:100%;background:var(--blue);width:20%}.big{font-size:clamp(34px,9vw,60px);font-weight:900;text-align:center;color:var(--navy)}.center{text-align:center}.muted{color:var(--muted)}.hidden{display:none!important}.resultrow{display:grid;grid-template-columns:1fr auto auto;gap:10px;padding:11px 4px;border-bottom:1px solid var(--line);align-items:center}.rank{font-weight:900;color:var(--blue)}.err{font-weight:900}.actions{display:flex;gap:8px;flex-wrap:wrap}.actions button{flex:1;min-width:120px}.note{font-size:12px;color:var(--muted);line-height:1.6}.soundbar{text-align:right;margin-top:10px}.soundbar button{font-size:13px;padding:9px 13px}table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:10px 6px;border-bottom:1px solid var(--line);text-align:center}@media(max-width:520px){.teamgrid{gap:6px}.team{padding:7px}.team h3{font-size:12px}.team input{font-size:15px;padding:9px}.panel{padding:14px}.resultrow{grid-template-columns:1fr auto auto}}
+</style></head><body>
+<header><h1>🎯 3チーム対抗 予想ゲーム</h1><p>数字を予想して、正解との差で勝負！</p></header><main>
+<section class="panel"><div class="row"><div><div class="kicker">GAME SETUP</div><h2>チーム名</h2></div><div class="muted" style="text-align:right;font-size:12px">全5問</div></div><div class="teamgrid"><div class="team"><h3>チームA</h3><input id="team0" value="Aチーム" maxlength="12"></div><div class="team"><h3>チームB</h3><input id="team1" value="Bチーム" maxlength="12"></div><div class="team"><h3>チームC</h3><input id="team2" value="Cチーム" maxlength="12"></div></div><div class="soundbar"><button class="soft" id="soundBtn">🔊 効果音 ON</button></div></section>
+<section class="panel" id="entry"><div class="kicker" id="qcount">QUESTION 1 / 5</div><div class="progress"><div class="bar" id="bar"></div></div><h2>問題と予想を入力</h2><label>問題名・内容</label><input id="question" placeholder="例：参加者のうち男性は何％？"><div class="row"><div><label>単位</label><input id="unit" value="％"></div><div><label>正解の数値</label><input id="answer" type="number" step="any" inputmode="decimal" placeholder="正解は司会者だけが入力"></div></div><label>各チームの予想</label><div class="teamgrid"><div class="team"><h3 id="name0">Aチーム</h3><input id="guess0" type="number" step="any" placeholder="予想"></div><div class="team"><h3 id="name1">Bチーム</h3><input id="guess1" type="number" step="any" placeholder="予想"></div><div class="team"><h3 id="name2">Cチーム</h3><input id="guess2" type="number" step="any" placeholder="予想"></div></div><p class="note">誤差は正解との差の絶対値で計算します。同じ誤差は同順位になります。</p><div class="actions"><button class="primary" id="revealBtn">答え合わせへ</button><button class="soft" id="clearBtn">この問題をクリア</button></div></section>
+<section class="panel hidden center" id="countdown"><div class="kicker">ANSWER TIME</div><h2 id="countTitle">第1問の答え合わせ</h2><div class="big" id="countNum">5</div><p class="muted">まもなく正解発表！</p></section>
+<section class="panel hidden" id="result"><div class="kicker">RESULT</div><h2 id="resultTitle">第1問 結果発表</h2><div class="center muted">正解</div><div class="big" id="correctValue">—</div><div id="resultRows"></div><div class="actions" style="margin-top:16px"><button class="primary" id="nextBtn">次の問題へ</button></div></section>
+<section class="panel hidden" id="final"><div class="kicker">FINAL RANKING</div><h2>🏆 総合順位</h2><div id="finalRows"></div><h2 style="margin-top:22px">問題別の結果</h2><div style="overflow-x:auto" id="history"></div><div class="actions" style="margin-top:16px"><button class="primary" id="exportBtn">結果を保存（CSV）</button><button class="soft" id="againBtn">最初からやり直す</button></div></section>
+<section class="panel"><div class="kicker">DATA</div><div class="row"><div><b>この端末内に自動保存</b><div class="note">同じブラウザで開けば、途中から続けられます。</div></div><button class="soft" id="saveBtn" style="flex:0 0 auto">保存</button></div></section></main>
 <script>
-const $=id=>document.getElementById(id), KEY='yosou-game-v1';
-let state={q:0,records:[],phase:'entry'};
-const teamNames=()=>[0,1,2].map(i=>$('team'+i).value.trim()||['Aチーム','Bチーム','Cチーム'][i]);
+const $=id=>document.getElementById(id),KEY='yosou-game-v1';let state={q:0,records:[],phase:'entry'},soundOn=true,ctx=null,timer=null;
+const names=()=>[0,1,2].map(i=>$('team'+i).value.trim()||['Aチーム','Bチーム','Cチーム'][i]);
+function audio(){if(!soundOn)return null;try{let A=window.AudioContext||window.webkitAudioContext;if(!A)return null;if(!ctx)ctx=new A();if(ctx.state==='suspended')ctx.resume();return ctx}catch(e){return null}}
+function tone(f,d=.14,type='sine',vol=.07,delay=0){let c=audio();if(!c)return;let o=c.createOscillator(),g=c.createGain(),t=c.currentTime+delay;o.type=type;o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.015);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+d+.03)}
+function tick(){tone(740,.12)}function fanfare(){[[523,0],[659,.16],[784,.32],[1047,.52]].forEach(x=>tone(x[0],.32,'triangle',.075,x[1]))}function victory(){[[784,0],[988,.14],[1175,.28],[1568,.48]].forEach(x=>tone(x[0],.38,'triangle',.08,x[1]))}
+$('soundBtn').onclick=()=>{soundOn=!soundOn;$('soundBtn').textContent=soundOn?'🔊 効果音 ON':'🔇 効果音 OFF';if(soundOn)tone(880,.12)};
 function save(){localStorage.setItem(KEY,JSON.stringify(state));$('saveBtn').textContent='保存済み';setTimeout(()=>$('saveBtn').textContent='保存',1200)}
-function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&Array.isArray(s.records)){state=s;renderSaved()}}catch(e){}}
-function show(which){['entry','countdown','result','final'].forEach(x=>$(x).classList.toggle('hidden',x!==which));}
-function syncNames(){teamNames().forEach((n,i)=>$('name'+i).textContent=n)}
-[0,1,2].forEach(i=>$('team'+i).addEventListener('input',syncNames));
-function current(){return {question:$('question').value.trim(),unit:$('unit').value.trim(),answer:Number($('answer').value),guesses:[0,1,2].map(i=>Number($('guess'+i).value))}}
-function valid(){let d=current();if(!d.question){alert('問題名・内容を入力してください');return false}if($('answer').value===''||!Number.isFinite(d.answer)){alert('正解の数値を入力してください');return false}for(let i=0;i<3;i++)if($('guess'+i).value===''||!Number.isFinite(d.guesses[i])){alert(teamNames()[i]+'の予想を入力してください');return false}return true}
-function clearInputs(){['question','answer','guess0','guess1','guess2'].forEach(id=>$(id).value='');$('unit').value='％'}
-function renderEntry(){show('entry');$('qcount').textContent=`QUESTION ${state.q+1} / 5`;$('bar').style.width=((state.q+1)*20)+'%';syncNames();let r=state.records[state.q];if(r){$('question').value=r.question;$('unit').value=r.unit;$('answer').value=r.answer;r.guesses.forEach((v,i)=>$('guess'+i).value=v)}else clearInputs();$('revealBtn').textContent=state.q===4?'最終結果を発表':'答え合わせへ'}
-function reveal(){if(!valid())return;const d=current();state.records[state.q]={...d,names:teamNames(),errors:d.guesses.map(v=>Math.abs(v-d.answer))};save();show('countdown');$('countTitle').textContent=`第${state.q+1}問の答え合わせ`;let n=5;$('countNum').textContent=n;let timer=setInterval(()=>{n--;if(n<=0){clearInterval(timer);showResult()}else $('countNum').textContent=n},850)}
-function showResult(){const r=state.records[state.q],order=[0,1,2].sort((a,b)=>r.errors[a]-r.errors[b]);$('resultTitle').textContent=`第${state.q+1}問 結果発表`;$('correctValue').textContent=r.answer+' '+r.unit;$('resultRows').innerHTML=order.map((i,k)=>`<div class="resultrow"><span><b class="rank">${k+1}位</b>　${esc(r.names[i])}</span><span>予想 ${r.guesses[i]}${esc(r.unit)}</span><span class="err">誤差 ${fmt(r.errors[i])}</span></div>`).join('');$('nextBtn').textContent=state.q===4?'総合順位を見る':'次の問題へ';show('result');state.phase='result';save()}
-function fmt(n){return Number(n.toFixed(3)).toString()}function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function next(){if(state.q<4){state.q++;state.phase='entry';renderEntry()}else finalResult()}
-function totals(){return [0,1,2].map(i=>({i,name:teamNames()[i],total:state.records.reduce((s,r)=>s+(r?.errors[i]||0),0)})).sort((a,b)=>a.total-b.total)}
-function finalResult(){show('final');let t=totals();$('finalRows').innerHTML=t.map((x,k)=>`<div class="resultrow"><span><b class="rank">${k+1}位</b>　${esc(x.name)}</span><span></span><span class="err">誤差合計 ${fmt(x.total)}</span></div>`).join('');$('history').innerHTML='<table><thead><tr><th>問題</th>'+teamNames().map(n=>`<th>${esc(n)}</th>`).join('')+'</tr></thead><tbody>'+state.records.map((r,i)=>`<tr><td>第${i+1}問</td>${r.errors.map(e=>`<td>${fmt(e)}</td>`).join('')}</tr>`).join('')+'</tbody></table>';state.phase='final';save()}
-function renderSaved(){teamNames();if(state.phase==='final'&&state.records.length===5){finalResult()}else if(state.phase==='result'&&state.records[state.q])showResult();else renderEntry()}
+function show(w){['entry','countdown','result','final'].forEach(x=>$(x).classList.toggle('hidden',x!==w))}
+function sync(){names().forEach((n,i)=>$('name'+i).textContent=n)}[0,1,2].forEach(i=>$('team'+i).addEventListener('input',sync));
+function data(){return{question:$('question').value.trim(),unit:$('unit').value.trim(),answer:Number($('answer').value),guesses:[0,1,2].map(i=>Number($('guess'+i).value))}}
+function valid(){let d=data();if(!d.question){alert('問題名・内容を入力してください');return false}if($('answer').value===''||!Number.isFinite(d.answer)){alert('正解の数値を入力してください');return false}for(let i=0;i<3;i++)if($('guess'+i).value===''||!Number.isFinite(d.guesses[i])){alert(names()[i]+'の予想を入力してください');return false}return true}
+function clear(){['question','answer','guess0','guess1','guess2'].forEach(x=>$(x).value='');$('unit').value='％'}
+function entry(){show('entry');$('qcount').textContent=`QUESTION ${state.q+1} / 5`;$('bar').style.width=((state.q+1)*20)+'%';sync();let r=state.records[state.q];if(r){$('question').value=r.question;$('unit').value=r.unit;$('answer').value=r.answer;r.guesses.forEach((v,i)=>$('guess'+i).value=v)}else clear();$('revealBtn').textContent=state.q===4?'最終結果を発表':'答え合わせへ'}
+function rank(v,i){return 1+v.filter(x=>x<v[i]).length}function fmt(n){return Number(n.toFixed(3)).toString()}function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function reveal(){if(!valid())return;audio();if(timer)clearInterval(timer);let d=data();state.records[state.q]={...d,names:names(),errors:d.guesses.map(x=>Math.abs(x-d.answer))};save();show('countdown');$('countTitle').textContent=`第${state.q+1}問の答え合わせ`;let n=5;$('countNum').textContent=n;tick();timer=setInterval(()=>{n--;if(n<=0){clearInterval(timer);timer=null;result()}else{$('countNum').textContent=n;tick()}},1000)}
+function result(){let r=state.records[state.q],order=[0,1,2].sort((a,b)=>r.errors[a]-r.errors[b]);$('resultTitle').textContent=`第${state.q+1}問 結果発表`;$('correctValue').textContent=r.answer+' '+r.unit;$('resultRows').innerHTML=order.map(i=>`<div class="resultrow"><span><b class="rank">${rank(r.errors,r.errors[i])}位</b>　${esc(r.names[i])}</span><span>予想 ${r.guesses[i]}${esc(r.unit)}</span><span class="err">誤差 ${fmt(r.errors[i])}</span></div>`).join('');$('nextBtn').textContent=state.q===4?'総合順位を見る':'次の問題へ';show('result');state.phase='result';save();fanfare()}
+function totals(){return[0,1,2].map(i=>({name:names()[i],total:state.records.reduce((s,r)=>s+(r?.errors[i]||0),0)})).sort((a,b)=>a.total-b.total)}
+function final(){show('final');let t=totals(),v=t.map(x=>x.total);$('finalRows').innerHTML=t.map(x=>`<div class="resultrow"><span><b class="rank">${rank(v,x.total)}位</b>　${esc(x.name)}</span><span></span><span class="err">誤差合計 ${fmt(x.total)}</span></div>`).join('');$('history').innerHTML='<table><thead><tr><th>問題</th>'+names().map(n=>`<th>${esc(n)}</th>`).join('')+'</tr></thead><tbody>'+state.records.map((r,i)=>`<tr><td>第${i+1}問</td>${r.errors.map(e=>`<td>${fmt(e)}</td>`).join('')}</tr>`).join('')+'</tbody></table>';state.phase='final';save();victory()}
+function next(){if(state.q<4){state.q++;state.phase='entry';entry()}else final()}
 $('revealBtn').onclick=reveal;$('nextBtn').onclick=next;$('saveBtn').onclick=save;
-$('clearBtn').onclick=()=>{if(confirm('この問題の入力を消しますか？')){state.records[state.q]=null;save();clearInputs()}};
-$('againBtn').onclick=()=>{if(confirm('現在の結果を消して最初から始めますか？')){state={q:0,records:[],phase:'entry'};save();renderEntry()}};
-$('exportBtn').onclick=()=>{let rows=[['問題','チーム','予想','正解','誤差']];state.records.forEach((r,i)=>r.names.forEach((n,j)=>rows.push([`第${i+1}問`,n,r.guesses[j],r.answer,r.errors[j]])));let csv='\ufeff'+rows.map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='予想ゲーム結果.csv';a.click();URL.revokeObjectURL(a.href)};
-load();if(!state.records.length)renderEntry();
-if('serviceWorker' in navigator && location.protocol.startsWith('http'))window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
-</script>
-</body></html>
+$('clearBtn').onclick=()=>{if(confirm('この問題の入力を消しますか？')){state.records[state.q]=null;save();clear()}};
+$('againBtn').onclick=()=>{if(confirm('現在の結果を消して最初から始めますか？')){state={q:0,records:[],phase:'entry'};save();entry()}};
+$('exportBtn').onclick=()=>{let rows=[['問題','チーム','予想','正解','誤差']];state.records.forEach((r,i)=>r.names.forEach((n,j)=>rows.push([`第${i+1}問`,n,r.guesses[j],r.answer,r.errors[j]])));let csv='\ufeff'+rows.map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n'),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='予想ゲーム結果.csv';a.click();URL.revokeObjectURL(a.href)};
+try{let s=JSON.parse(localStorage.getItem(KEY));if(s&&Array.isArray(s.records)){state=s;if(state.phase==='final'&&state.records.length===5)final();else if(state.phase==='result'&&state.records[state.q]){result()}else entry()}else entry()}catch(e){entry()}
+if('serviceWorker'in navigator&&location.protocol.startsWith('http'))window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+</script></body></html>
